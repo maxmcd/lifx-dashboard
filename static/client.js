@@ -11,7 +11,7 @@ var App = React.createClass({
     getInitialState: function getInitialState() {
         return {
             token: localStorage.getItem('lifxToken'),
-            lights: []
+            items: {}
         };
     },
     componentDidMount: function componentDidMount() {
@@ -21,7 +21,16 @@ var App = React.createClass({
     },
     getLights: function getLights() {
         this.ajax("/lights/all", 'get', function (data) {
-            this.setState({ lights: data });
+            for (var i = 0; i < data.length; i++) {
+                var light = data[i];
+                var selector = "id:" + light.id;
+                this.state.items[selector] = {
+                    selector: selector,
+                    name: light.label,
+                    power: light.power
+                };
+            }
+            this.setState({ items: this.state.items });
         }.bind(this));
     },
     ajax: function ajax(path, method, cb) {
@@ -40,7 +49,7 @@ var App = React.createClass({
     },
     tokenFormSubmit: function tokenFormSubmit(e) {
         e.preventDefault();
-        token = this.refs.tokenInput.value;
+        var token = this.refs.tokenInput.value;
         localStorage.setItem('lifxToken', token);
         this.setState({ token: token });
         this.getLights();
@@ -50,10 +59,18 @@ var App = React.createClass({
     },
     togglePower: function togglePower(selector) {
         this.ajax('/lights/' + selector + '/toggle', 'post', function (data) {
-            this.getLights();
+            var item = this.state.items[selector];
+            if (item.power == "on") {
+                item.power = "off";
+            } else {
+                item.power = "on";
+            }
+            this.state.items[selector] = item;
+            this.setState({ items: this.state.items });
         }.bind(this));
     },
-    renderLight: function renderLight(light) {
+    renderLight: function renderLight(key) {
+        var light = this.state.items[key];
         return React.createElement(
             'div',
             { key: light.uuid,
@@ -65,13 +82,13 @@ var App = React.createClass({
                 React.createElement(
                     'p',
                     null,
-                    light.label
+                    light.name
                 ),
                 React.createElement(
                     'button',
                     {
                         className: 'btn btn-default',
-                        onClick: this.togglePower.bind(this, 'id:' + light.id) },
+                        onClick: this.togglePower.bind(this, key) },
                     React.createElement('i', { className: 'fa fa-power-off' })
                 )
             )
@@ -136,7 +153,7 @@ var App = React.createClass({
                     React.createElement(
                         'div',
                         { className: '' },
-                        this.state.lights.map(this.renderLight)
+                        Object.keys(this.state.items).map(this.renderLight)
                     )
                 )
             ),

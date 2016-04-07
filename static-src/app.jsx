@@ -8,7 +8,7 @@ const App = React.createClass({
     getInitialState() {
         return {
             token: localStorage.getItem('lifxToken'),
-            lights: [],
+            items: {},
         }
     },
     componentDidMount() {
@@ -18,7 +18,16 @@ const App = React.createClass({
     },
     getLights() {
         this.ajax("/lights/all", 'get', function(data) {
-            this.setState({lights: data})
+            for (var i=0;i<data.length;i++) {
+                var light = data[i]
+                var selector = "id:" + light.id
+                this.state.items[selector] = {
+                    selector: selector,
+                    name: light.label,
+                    power: light.power
+                }
+            }
+            this.setState({items: this.state.items})
         }.bind(this))
     },
     ajax(path, method, cb) {
@@ -35,7 +44,7 @@ const App = React.createClass({
     },
     tokenFormSubmit(e) {
         e.preventDefault()
-        token = this.refs.tokenInput.value
+        var token = this.refs.tokenInput.value
         localStorage.setItem('lifxToken', token)
         this.setState({token: token})
         this.getLights()
@@ -48,20 +57,28 @@ const App = React.createClass({
             `/lights/${selector}/toggle`,
             'post',
             function(data) {
-                this.getLights()
+                var item = this.state.items[selector]
+                if (item.power == "on") {
+                    item.power = "off"
+                } else {
+                    item.power = "on"
+                }
+                this.state.items[selector] = item
+                this.setState({items: this.state.items})
             }.bind(this)
         )
     },
-    renderLight(light) {
+    renderLight(key) {
+        var light = this.state.items[key]
         return (
             <div key={light.uuid} 
                 className={"panel panel-default " + light.power}
             >
                 <div className="panel-body">
-                    <p>{light.label}</p>
+                    <p>{light.name}</p>
                     <button 
                         className="btn btn-default" 
-                        onClick={this.togglePower.bind(this, 'id:'+light.id)}>
+                        onClick={this.togglePower.bind(this, key)}>
                         <i className="fa fa-power-off"></i>
                     </button>
                 </div>
@@ -99,7 +116,7 @@ const App = React.createClass({
                         <i className="fa fa-refresh"></i>
                     </button>
                     <div className="">
-                        {this.state.lights.map(this.renderLight)}
+                        {Object.keys(this.state.items).map(this.renderLight)}
                     </div>
                 </div>
             </div>
