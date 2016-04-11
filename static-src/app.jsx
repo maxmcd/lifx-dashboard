@@ -115,7 +115,7 @@ const App = React.createClass({
     render() {
         var title, form
         if (!this.state.token) {
-            title = "Enter you auth token:"
+            title = "Enter your auth token:"
             form = (
                 <form onSubmit={this.tokenFormSubmit}>
                     <input type="text" className="form-control" ref="tokenInput" />

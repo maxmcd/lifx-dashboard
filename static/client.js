@@ -124,7 +124,7 @@ var App = React.createClass({
     render: function render() {
         var title, form;
         if (!this.state.token) {
-            title = "Enter you auth token:";
+            title = "Enter your auth token:";
             form = React.createElement(
                 "form",
                 { onSubmit: this.tokenFormSubmit },
