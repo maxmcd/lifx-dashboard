@@ -1,13 +1,16 @@
-'use strict';
+"use strict";
 
 var Light = React.createClass({
-    displayName: 'Light',
+    displayName: "Light",
     render: function render() {
         return null;
     }
 });
+
+var Colors = ["red", "orange", "yellow", "cyan", "green", "blue", "purple", "pink", "white"];
+
 var App = React.createClass({
-    displayName: 'App',
+    displayName: "App",
     getInitialState: function getInitialState() {
         return {
             token: localStorage.getItem('lifxToken'),
@@ -58,7 +61,7 @@ var App = React.createClass({
         this.setState({ token: null });
     },
     togglePower: function togglePower(selector) {
-        this.ajax('/lights/' + selector + '/toggle', 'post', function (data) {
+        this.ajax("/lights/" + selector + "/toggle", 'post', function (data) {
             var item = this.state.items[selector];
             if (item.power == "on") {
                 item.power = "off";
@@ -69,28 +72,52 @@ var App = React.createClass({
             this.setState({ items: this.state.items });
         }.bind(this));
     },
+    colorFormSubmit: function colorFormSubmit(selector, color) {
+        var tok = this.state.token;
+        $.ajax({
+            url: "https://api.lifx.com/v1/lights/" + selector + "/state",
+            beforeSend: function beforeSend(xhr) {
+                xhr.setRequestHeader('Authorization', 'Bearer ' + tok);
+            },
+            method: 'PUT',
+            data: {
+                color: "" + color
+            },
+            success: function (data) {
+                // do stuff
+            }.bind(this)
+        });
+    },
+    renderColorButton: function renderColorButton(color, key) {
+        return React.createElement("button", {
+            className: "btn btn-default " + color,
+            onClick: this.colorFormSubmit.bind(this, key, color) });
+    },
     renderLight: function renderLight(key) {
         var light = this.state.items[key];
         return React.createElement(
-            'div',
+            "div",
             { key: light.uuid,
                 className: "panel panel-default " + light.power
             },
             React.createElement(
-                'div',
-                { className: 'panel-body' },
+                "div",
+                { className: "panel-body" },
                 React.createElement(
-                    'p',
+                    "p",
                     null,
                     light.name
                 ),
                 React.createElement(
-                    'button',
+                    "button",
                     {
-                        className: 'btn btn-default',
+                        className: "btn btn-default",
                         onClick: this.togglePower.bind(this, key) },
-                    React.createElement('i', { className: 'fa fa-power-off' })
-                )
+                    React.createElement("i", { className: "fa fa-power-off" })
+                ),
+                Colors.map(function (color) {
+                    return this.renderColorButton(color, key);
+                }.bind(this))
             )
         );
     },
@@ -99,85 +126,85 @@ var App = React.createClass({
         if (!this.state.token) {
             title = "Enter you auth token:";
             form = React.createElement(
-                'form',
+                "form",
                 { onSubmit: this.tokenFormSubmit },
-                React.createElement('input', { type: 'text', className: 'form-control', ref: 'tokenInput' }),
+                React.createElement("input", { type: "text", className: "form-control", ref: "tokenInput" }),
                 React.createElement(
-                    'button',
-                    { className: 'btn btn-default' },
-                    'Save'
+                    "button",
+                    { className: "btn btn-default" },
+                    "Save"
                 )
             );
         } else {
             title = "Auth Token:";
             var tok = "********" + this.state.token.substr(this.state.token.length - 5);
             form = React.createElement(
-                'div',
+                "div",
                 null,
                 React.createElement(
-                    'span',
-                    { className: 'token' },
+                    "span",
+                    { className: "token" },
                     tok,
-                    ' '
+                    " "
                 ),
                 React.createElement(
-                    'a',
-                    { href: '#', onClick: this.nullToken },
-                    'change'
+                    "a",
+                    { href: "#", onClick: this.nullToken },
+                    "change"
                 )
             );
         }
         return React.createElement(
-            'div',
+            "div",
             null,
             React.createElement(
-                'div',
-                { className: 'center icon' },
+                "div",
+                { className: "center icon" },
                 React.createElement(
-                    'i',
-                    { className: 'fa fa-2x fa-lightbulb-o' },
-                    ' '
+                    "i",
+                    { className: "fa fa-2x fa-lightbulb-o" },
+                    " "
                 )
             ),
             React.createElement(
-                'div',
-                { className: 'row' },
+                "div",
+                { className: "row" },
                 React.createElement(
-                    'div',
-                    { className: 'col-md-6 col-md-offset-3 lights' },
+                    "div",
+                    { className: "col-md-6 col-md-offset-3 lights" },
                     React.createElement(
-                        'button',
-                        { className: 'btn btn-default refresh', onClick: this.refresh },
-                        React.createElement('i', { className: 'fa fa-refresh' })
+                        "button",
+                        { className: "btn btn-default refresh", onClick: this.refresh },
+                        React.createElement("i", { className: "fa fa-refresh" })
                     ),
                     React.createElement(
-                        'div',
-                        { className: '' },
+                        "div",
+                        { className: "" },
                         Object.keys(this.state.items).map(this.renderLight)
                     )
                 )
             ),
             React.createElement(
-                'div',
-                { className: 'row' },
+                "div",
+                { className: "row" },
                 React.createElement(
-                    'div',
-                    { className: 'col-md-6 col-md-offset-3' },
+                    "div",
+                    { className: "col-md-6 col-md-offset-3" },
                     React.createElement(
-                        'div',
-                        { className: 'panel panel-default token-panel' },
+                        "div",
+                        { className: "panel panel-default token-panel" },
                         React.createElement(
-                            'div',
-                            { className: 'panel-heading' },
+                            "div",
+                            { className: "panel-heading" },
                             React.createElement(
-                                'div',
-                                { className: 'panel-title' },
+                                "div",
+                                { className: "panel-title" },
                                 title
                             )
                         ),
                         React.createElement(
-                            'div',
-                            { className: 'panel-body' },
+                            "div",
+                            { className: "panel-body" },
                             form
                         )
                     )

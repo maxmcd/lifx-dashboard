@@ -1,12 +1,10 @@
 var gulp = require('gulp'),
-    gae = require('gulp-gae'),
     watch = require('gulp-watch'),
     sass = require('gulp-sass'),
     gutil = require('gulp-util')
     plumber = require('gulp-plumber')
     babel = require('gulp-babel'),
     concat = require('gulp-concat'),
-    mainBowerFiles = require('main-bower-files'),
     connect = require('gulp-connect');
  
 

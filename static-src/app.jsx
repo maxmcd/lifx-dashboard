@@ -4,6 +4,9 @@ const Light = React.createClass({
         return null
     }
 })
+
+const Colors = ["red", "orange", "yellow", "cyan", "green", "blue", "purple", "pink", "white"]
+
 const App = React.createClass({
     getInitialState() {
         return {
@@ -68,6 +71,29 @@ const App = React.createClass({
             }.bind(this)
         )
     },
+    colorFormSubmit(selector, color) {
+        var tok = this.state.token
+        $.ajax({
+            url: `https://api.lifx.com/v1/lights/${selector}/state`,
+            beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer ' + tok)},
+            method: 'PUT',
+            data: {
+             color: `${color}`,
+             },
+                success: function(data) {
+                  // do stuff
+             }.bind(this)
+            })
+
+    },
+    renderColorButton(color, key) {
+        return (
+            <button
+                className={"btn btn-default " + color}
+                onClick={this.colorFormSubmit.bind(this, key, color)} >
+            </button>
+        )
+    },
     renderLight(key) {
         var light = this.state.items[key]
         return (
@@ -81,7 +107,8 @@ const App = React.createClass({
                         onClick={this.togglePower.bind(this, key)}>
                         <i className="fa fa-power-off"></i>
                     </button>
-                </div>
+                    {Colors.map(function(color) {return this.renderColorButton(color, key)}.bind(this)) }
+                    </div>     
             </div>
         )
     },
