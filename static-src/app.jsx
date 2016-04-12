@@ -5,13 +5,14 @@ const Light = React.createClass({
     }
 })
 
-const Colors = ["red", "orange", "yellow", "cyan", "green", "blue", "purple", "pink", "white"]
+const lifxColors = ["red", "orange", "yellow", "cyan", "green", "blue", "purple", "pink", "white"]
 
 const App = React.createClass({
     getInitialState() {
         return {
             token: localStorage.getItem('lifxToken'),
             items: {},
+            color: this.props.initialColor
         }
     },
     componentDidMount() {
@@ -27,7 +28,10 @@ const App = React.createClass({
                 this.state.items[selector] = {
                     selector: selector,
                     name: light.label,
-                    power: light.power
+                    power: light.power,
+                    hue: light.color.hue,
+                    saturation: light.color.saturation,
+                    brightness: light.brightness
                 }
             }
             this.setState({items: this.state.items})
@@ -94,6 +98,11 @@ const App = React.createClass({
             </button>
         )
     },
+    handleColorChange(color) {
+        const colors = [...this.state.colors]
+        colors[this.state.selected] = color
+        this.setState({ colors })
+    },
     renderLight(key) {
         var light = this.state.items[key]
         return (
@@ -107,7 +116,7 @@ const App = React.createClass({
                         onClick={this.togglePower.bind(this, key)}>
                         <i className="fa fa-power-off"></i>
                     </button>
-                    {Colors.map(function(color) {return this.renderColorButton(color, key)}.bind(this)) }
+                    {lifxColors.map(function(color) {return this.renderColorButton(color, key)}.bind(this)) }
                     </div>     
             </div>
         )
@@ -137,6 +146,11 @@ const App = React.createClass({
             <div className="center icon">
                 <i className="fa fa-2x fa-lightbulb-o"> </i>
             </div>
+            <ColorPicker
+                color={this.state.color}
+                onChange={this.handleColorChange}
+                opacitySlider={true}
+            />
             <div className="row">
                 <div className="col-md-6 col-md-offset-3 lights">
                     <button className="btn btn-default refresh" onClick={this.refresh}>
@@ -166,5 +180,5 @@ const App = React.createClass({
     }
 })
 $(function() {
-    ReactDOM.render(<App />, $('.container')[0])
+    ReactDOM.render(<App initialColor="rgb(0,0,0,1)"/>, $('.container')[0])
 })

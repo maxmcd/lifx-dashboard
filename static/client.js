@@ -1,5 +1,7 @@
 "use strict";
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 var Light = React.createClass({
     displayName: "Light",
     render: function render() {
@@ -7,14 +9,15 @@ var Light = React.createClass({
     }
 });
 
-var Colors = ["red", "orange", "yellow", "cyan", "green", "blue", "purple", "pink", "white"];
+var lifxColors = ["red", "orange", "yellow", "cyan", "green", "blue", "purple", "pink", "white"];
 
 var App = React.createClass({
     displayName: "App",
     getInitialState: function getInitialState() {
         return {
             token: localStorage.getItem('lifxToken'),
-            items: {}
+            items: {},
+            color: this.props.initialColor
         };
     },
     componentDidMount: function componentDidMount() {
@@ -30,7 +33,10 @@ var App = React.createClass({
                 this.state.items[selector] = {
                     selector: selector,
                     name: light.label,
-                    power: light.power
+                    power: light.power,
+                    hue: light.color.hue,
+                    saturation: light.color.saturation,
+                    brightness: light.brightness
                 };
             }
             this.setState({ items: this.state.items });
@@ -93,6 +99,11 @@ var App = React.createClass({
             className: "btn btn-default " + color,
             onClick: this.colorFormSubmit.bind(this, key, color) });
     },
+    handleColorChange: function handleColorChange(color) {
+        var colors = [].concat(_toConsumableArray(this.state.colors));
+        colors[this.state.selected] = color;
+        this.setState({ colors: colors });
+    },
     renderLight: function renderLight(key) {
         var light = this.state.items[key];
         return React.createElement(
@@ -115,7 +126,7 @@ var App = React.createClass({
                         onClick: this.togglePower.bind(this, key) },
                     React.createElement("i", { className: "fa fa-power-off" })
                 ),
-                Colors.map(function (color) {
+                lifxColors.map(function (color) {
                     return this.renderColorButton(color, key);
                 }.bind(this))
             )
@@ -166,6 +177,11 @@ var App = React.createClass({
                     " "
                 )
             ),
+            React.createElement(ColorPicker, {
+                color: this.state.color,
+                onChange: this.handleColorChange,
+                opacitySlider: true
+            }),
             React.createElement(
                 "div",
                 { className: "row" },
@@ -214,5 +230,5 @@ var App = React.createClass({
     }
 });
 $(function () {
-    ReactDOM.render(React.createElement(App, null), $('.container')[0]);
+    ReactDOM.render(React.createElement(App, { initialColor: "rgb(0,0,0,1)" }), $('.container')[0]);
 });
