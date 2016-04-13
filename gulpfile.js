@@ -5,12 +5,17 @@ var gulp = require('gulp'),
     plumber = require('gulp-plumber')
     babel = require('gulp-babel'),
     concat = require('gulp-concat'),
-    connect = require('gulp-connect');
+    connect = require('gulp-connect'),
+    ghPages = require('gulp-gh-pages');
  
+gulp.task('deploy', function() {
+  return gulp.src('./dist/**/*')
+    .pipe(ghPages());
+}); 
 
 gulp.task('connect', function() {
     connect.server({
-        root: '.',
+        root: './dist',
         livereload: true
     });
 });
@@ -25,7 +30,13 @@ gulp.task('js', function() {
             gutil.log(e.stack)
         })
         .pipe(concat('client.js'))
-        .pipe(gulp.dest('static'))
+        .pipe(gulp.dest('./dist/static'))
+        .pipe(connect.reload());
+})
+
+gulp.task('html', function() {
+    return gulp.src('*.html')
+        .pipe(gulp.dest('./dist'))
         .pipe(connect.reload());
 })
 
@@ -33,7 +44,7 @@ gulp.task('css', function() {
     return gulp.src('static-src/*.sass')
         .pipe(sass().on('error', sass.logError))
         .pipe(concat('client.css'))
-        .pipe(gulp.dest('static'))
+        .pipe(gulp.dest('./dist/static'))
         .pipe(connect.reload());
 });
 
@@ -45,14 +56,14 @@ gulp.task('watch', function () {
         gulp.start('css');
     });
     watch('*.html', function () {
-        connect.reload()
+        gulp.start('html');
     });
-
 });
 
 gulp.task('default', [
     'js',
     'css',
+    'html',
     'watch',
     'connect',
 ]);
