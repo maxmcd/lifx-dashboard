@@ -1,13 +1,9 @@
-
-const Light = React.createClass({
-    render() {
-        return null
-    }
-})
+var React = require('react');
+var ReactDOM = require('react-dom');
 
 const lifxColors = ["red", "orange", "yellow", "cyan", "green", "blue", "purple", "pink", "white"]
 
-const App = React.createClass({
+var App = React.createClass({
     getInitialState() {
         return {
             token: localStorage.getItem('lifxToken'),
@@ -146,11 +142,6 @@ const App = React.createClass({
             <div className="center icon">
                 <i className="fa fa-2x fa-lightbulb-o"> </i>
             </div>
-            <ColorPicker
-                color={this.state.color}
-                onChange={this.handleColorChange}
-                opacitySlider={true}
-            />
             <div className="row">
                 <div className="col-md-6 col-md-offset-3 lights">
                     <button className="btn btn-default refresh" onClick={this.refresh}>
@@ -179,6 +170,9 @@ const App = React.createClass({
         )
     }
 })
-$(function() {
-    ReactDOM.render(<App initialColor="rgb(0,0,0,1)"/>, $('.container')[0])
-})
+
+
+ReactDOM.render(
+	<App />,
+	document.getElementById('app')
+);
