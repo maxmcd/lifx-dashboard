@@ -7,9 +7,9 @@ var hashHistory = ReactRouter.hashHistory;
 var Main = require('../components/Main');
 
 var routes = (
-<Router>
+<Router history={hashHistory}>
 	<Route path='/' component={Main}>
-		<IndexRoute path='/home' component={Main} />
+		<IndexRoute component={Main} />
 	</Route>
 
 </Router>
